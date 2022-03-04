@@ -1,0 +1,1 @@
+adb push "dist\T0x13\." "/storage/emulated/0/Android/data/com.midea.ai.appliances/files/MideaHome/T0x13_79008252/"
