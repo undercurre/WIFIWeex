@@ -1,24 +1,25 @@
 <template>
   <div class="container" @viewappear="initPage">
-    <scroller style="align-items: center" @scroll="scrollHander">
-      <div class="bg" v-if="deviceDetail.power">
-        <image src="./assets/image/bg.png" class="bg"></image>
+    <div class="bg" v-if="true">
+      <image src="./assets/image/bg.png" class="bg"></image>
+    </div>
+    <dof-minibar
+      :title="deviceInfo.deviceName"
+      background-color="transparent"
+      textColor="#000000"
+      :middle-text-style="headerStyle"
+      :is-immersion="true"
+      @dofMinibarRightButtonClicked="toSetting"
+    >
+      <div slot="left">
+        <image :src="leftButton" style="height: 55px;width: 55px;transform:translateX(-10px);"></image>
       </div>
-      <dof-minibar
-        :title="deviceInfo.deviceName"
-        background-color="transparent"
-        textColor="#000000"
-        :middle-text-style="headerStyle"
-        :is-immersion="true"
-        @dofMinibarRightButtonClicked="toSetting"
-      >
-        <div slot="left">
-          <image :src="leftButton" style="height: 55px;width: 55px;transform:translateX(-10px);"></image>
-        </div>
-        <div slot="right" class="right-img-wrapper">
-          <image :src="rightButton" style="height: 55px;width: 55px;"></image>
-        </div>
-      </dof-minibar>
+      <div slot="right" class="right-img-wrapper">
+        <image :src="rightButton" style="height: 55px;width: 55px;"></image>
+      </div>
+    </dof-minibar>
+    <scroller style="align-items: center" @scroll="scrollHander">
+      <!-- 提示 -->
       <dof-noticebar
         :notice="waterProtectorText"
         v-if="deviceDetail.waterProtector"
@@ -31,6 +32,13 @@
         type="danger"
         mode="closeable"
       ></dof-noticebar>
+      <!-- 状态胶囊 -->
+      <div class="status-capsule">
+        <div class="status-point"></div>
+        <text class="status-text">{{ statusText }}</text>
+      </div>
+      <!-- 设备和喷雾 -->
+      <image src="./assets/image/spray.png" class="sprayIcon"></image>
       <image :src="deviceIcon" class="deviceIcon"></image>
       <adjust-bar
         style="margin-top: 104px"
@@ -115,6 +123,8 @@ export default {
   data() {
     return {
       showPopup: false,
+      isSpray: true,
+      statusText: '喷雾中',
       leftButton: './assets/image/header/back_black@2x.png',
       rightButton: './assets/image/more.png',
       popupButton: ['取消'],
@@ -182,7 +192,7 @@ export default {
           name: '间断喷雾',
           icon: './assets/image/smoke_interrupted.png'
         }
-      ],
+      ]
     }
   },
   created() {
@@ -211,7 +221,7 @@ export default {
       }
     },
     overheatText() {
-      if (this.deviceDetail.overheatingProtection){
+      if (this.deviceDetail.overheatingProtection) {
         return '设备雾化器过热，已自动关机'
       } else {
         return ''
@@ -434,10 +444,46 @@ export default {
   right: 0;
 }
 
+.status-capsule {
+  width: 178px;
+  height: 68px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  background-color: rgba(102, 102, 102, 0.08);
+  border-radius: 99999px;
+  margin-top: 38px;
+}
+
+.status-point {
+  height: 14px;
+  width: 14px;
+  border-radius: 7px;
+  background-color: #25CF42;
+  margin-right: 16px;
+}
+
+.status-text {
+  font-family: PingFangSC-Medium;
+  font-size: 28px;
+  color: #666666;
+  letter-spacing: 0;
+  text-align: center;
+  line-height: 28px;
+  font-weight: 700;
+}
+
+.sprayIcon {
+  width: 160px;
+  height: 87px;
+  margin-bottom: -5px;
+  margin-top: 10px;
+}
+
 .deviceIcon {
   width: 275px;
   height: 350px;
-  margin-top: 266px;
 }
 
 .cell {
