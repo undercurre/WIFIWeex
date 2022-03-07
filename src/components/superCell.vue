@@ -7,8 +7,9 @@
         <text v-if="desc" class="desc">{{ desc }}</text>
       </div>
     </div>
-    <dof-switch v-if="!hasArrow" :checked="switchCheck" @dof-change.stop="handleSwitchChange"></dof-switch>
+    <dof-switch :disabled="disable" v-if="!hasArrow" :checked="switchCheck" @dof-change.stop="handleSwitchChange"></dof-switch>
     <image v-if="hasArrow" :src="arrow" style="height: 55px;width: 55px;transform:rotate(180deg);"></image>
+    <div class="cover" v-if="disable"></div>
   </div>
 </template>
 
@@ -47,6 +48,10 @@ export default {
       type: Boolean,
       default: true
     },
+    disable: {
+      type: Boolean,
+      default: false
+    }
   },
   methods: {
     handleSwitchChange(e) {
@@ -62,6 +67,16 @@ export default {
 </script>
 
 <style scoped>
+.cover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 686px;
+  height: 222px;
+  border-radius: 32px;
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
 .container {
   width: 686px;
   height: 160px;

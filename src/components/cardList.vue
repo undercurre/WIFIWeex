@@ -2,10 +2,11 @@
   <div class="container">
     <text class="title">{{ title }}</text>
     <div class="cards">
-      <div class="card" v-for="(item,index) in cards" :key="item.id" :class="[item.id === selected ? 'active' : 'unactive', index !== 0 ? 'hasMargin' : '']" @click="select(item)">
-        <text class="cardText" :style="{color: index === selected ? '#FFFFFF' : '#666666'}">{{ item.name }}</text>
+      <div class="card" v-for="(item,index) in cards" :key="item.id" :class="[(item.id === selected && !disable) ? 'active' : 'unactive', index !== 0 ? 'hasMargin' : '']" @click="select(item)">
+        <text class="cardText" :style="{color: (index === selected && !disable) ? '#FFFFFF' : '#666666'}">{{ item.name }}</text>
       </div>
     </div>
+    <div class="cover" v-if="disable"></div>
   </div>
 </template>
 
@@ -24,17 +25,33 @@ export default {
     selected: {
       type: Number,
       default: 0
+    },
+    disable: {
+      type: Boolean,
+      default: false
     }
   },
   methods: {
     select(item) {
-      this.$emit('selectCard', item)
+      if (!this.disable) {
+        this.$emit('selectCard', item)
+      }
     }
   }
 }
 </script>
 
 <style scoped>
+.cover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 686px;
+  height: 222px;
+  border-radius: 32px;
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
 .container {
   width: 686px;
   height: 222px;

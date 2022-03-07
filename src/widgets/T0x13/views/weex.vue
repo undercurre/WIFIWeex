@@ -1,6 +1,6 @@
 <template>
   <div class="container" @viewappear="initPage">
-    <div class="bg" v-if="true">
+    <div class="bg" v-if="deviceDetail.power">
       <image src="./assets/image/bg.png" class="bg"></image>
     </div>
     <dof-minibar
@@ -33,14 +33,16 @@
         mode="closeable"
       ></dof-noticebar>
       <!-- 状态胶囊 -->
-      <div class="status-capsule">
+      <div class="status-capsule" v-if="deviceDetail.fogMethod !== 'close'">
         <div class="status-point"></div>
         <text class="status-text">{{ statusText }}</text>
       </div>
       <!-- 设备和喷雾 -->
-      <image src="./assets/image/spray.png" class="sprayIcon"></image>
-      <image :src="deviceIcon" class="deviceIcon"></image>
+      <image src="./assets/image/spray_on.png" class="sprayIcon" v-if="deviceDetail.fogMethod !== 'close' && deviceDetail.power"></image>
+      <image src="./assets/image/spray_off.png" class="sprayIcon" v-if="deviceDetail.fogMethod !== 'close' && !deviceDetail.power"></image>
+      <image :src="deviceIcon" class="deviceIcon" :style="{marginTop: deviceDetail.fogMethod === 'close' ? '173px' : 0}"></image>
       <adjust-bar
+        :disable="!deviceDetail.power"
         style="margin-top: 104px"
         title="亮度"
         :min-percent="1"
@@ -48,6 +50,7 @@
         @getValue="getBrightValue"
       ></adjust-bar>
       <card-list
+        :disable="!deviceDetail.power"
         style="margin-top: 16px"
         title="色温"
         :selected="colorTemperature"
@@ -55,6 +58,7 @@
         @selectCard="setColorTemperatureValueModel"
       ></card-list>
       <super-cell
+        :disable="!deviceDetail.power"
         style="margin-top: 16px"
         title="呼吸模式"
         icon="./assets/image/breath.png"

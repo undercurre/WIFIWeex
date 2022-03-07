@@ -3,14 +3,17 @@
     <div class="title">
       <text class="titleText">{{ title }}</text><text class="line">|</text><text class="titleText">{{ percent }}%</text>
     </div>
-    <div class="progress" ref="touchBox" @touchstart="handleStart" @touchend="handleEnd" @touchmove="handleMove">
-      <dof-progress :value="percent" bar-width="622" bar-color="#FFAA10" bar-height="40" bar-radius="20"></dof-progress>
-      <div class="point" :style="{ left: (percent / 100) * 622 - 32 + 'px' }"></div>
+    <div @touchend="handleEnd" @touchmove="handleMove">
+      <div class="progress" ref="touchBox" @touchstart="handleStart">
+        <dof-progress :value="percent" bar-width="622" :bar-color="barColor" bar-height="40" bar-radius="20"></dof-progress>
+        <div class="point" :style="{ left: (percent / 100) * 622 - 32 + 'px' }"></div>
+      </div>
+      <div class="percent">
+        <text class="text">{{ minPercent }}%</text>
+        <text class="text">{{ maxPercent }}%</text>
+      </div>
     </div>
-    <div class="percent">
-      <text class="text">{{ minPercent }}%</text>
-      <text class="text">{{ maxPercent }}%</text>
-    </div>
+    <div class="cover" v-if="disable"></div>
   </div>
 </template>
 
@@ -39,17 +42,41 @@ export default {
     minPercent: {
       type: Number,
       default: 0
+    },
+    disable: {
+      type: Boolean,
+      default: false
+    }
+  },
+  data() {
+    return {
+      barColor: '#FFAA10'
+    }
+  },
+  watch: {
+    disable(val) {
+      if (!val) {
+        this.barColor = '#FFAA10'
+      } else {
+        this.barColor = '#C1C1C1'
+      }
     }
   },
   methods: {
     handleStart(e) {
-      this.setValue(e)
+      if (!this.disable) {
+        this.setValue(e)
+      }
     },
     handleMove(e) {
-      this.setValue(e)
+      if (!this.disable) {
+        this.setValue(e)
+      }
     },
     handleEnd(e) {
-      this.$emit('getValue', this.percent)
+      if (!this.disable) {
+        this.$emit('getValue', this.percent)
+      }
     },
     setValue(e) {
       let info = '';
@@ -58,8 +85,8 @@ export default {
           info += item.pageX
         })
       }
-      if (info < 0) {
-        info = 0
+      if (info < this.minPercent * 622 / 100) {
+        info = this.minPercent * 622 / 100
       }
       if (info > 622) {
         info = 622
@@ -82,6 +109,16 @@ export default {
   background-color: #ffffff;
   box-shadow: 0px 2px 20px 0px rgba(0,0,0,0.04);
   border-radius: 32px;
+}
+
+.cover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 686px;
+  height: 222px;
+  border-radius: 32px;
+  background-color: rgba(255, 255, 255, 0.4);
 }
 
 .title {
