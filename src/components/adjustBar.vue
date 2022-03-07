@@ -3,7 +3,7 @@
     <div class="title">
       <text class="titleText">{{ title }}</text><text class="line">|</text><text class="titleText">{{ percent }}%</text>
     </div>
-    <div @touchend="handleEnd" @touchmove="handleMove">
+    <div @touchend="handleEnd" @touchmove="handleMove" style="padding-top: 32px">
       <div class="progress" ref="touchBox" @touchstart="handleStart">
         <dof-progress :value="percent" bar-width="622" :bar-color="barColor" bar-height="40" bar-radius="20"></dof-progress>
         <div class="point" :style="{ left: (percent / 100) * 622 - 32 + 'px' }"></div>
@@ -130,7 +130,6 @@ export default {
   height: 32px;
   line-height: 32px;
   font-size: 32px;
-  margin-bottom: 32px;
   font-weight: 500;
 }
 

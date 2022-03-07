@@ -278,7 +278,7 @@ export default {
     },
     'deviceDetail.fogMethod'(newValue, oldValue) {
       debugUtil.log('watch喷雾', newValue)
-      let newIcon = this.smokeArray[0].icon
+      let newIcon = './assets/image/smoke_close_bg.png'
       let newText = '喷雾关闭'
       switch (newValue) {
         case 'close':
@@ -296,7 +296,7 @@ export default {
         type: 'mode',
         title: 'smoke',
         text: newText,
-        iconColor: '#267AFF',
+        iconColor: '#50CEFF',
         disabled: false,
         icon: newIcon
       })
