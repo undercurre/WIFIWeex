@@ -38,9 +38,21 @@
         <text class="status-text">{{ statusText }}</text>
       </div>
       <!-- 设备和喷雾 -->
-      <image src="./assets/image/spray_on.png" class="sprayIcon" v-if="deviceDetail.fogMethod !== 'close' && deviceDetail.power"></image>
-      <image src="./assets/image/spray_off.png" class="sprayIcon" v-if="deviceDetail.fogMethod !== 'close' && !deviceDetail.power"></image>
-      <image :src="deviceIcon" class="deviceIcon" :style="{marginTop: deviceDetail.fogMethod === 'close' ? '173px' : 0}"></image>
+      <image
+        src="./assets/image/spray_on.png"
+        class="sprayIcon"
+        v-if="deviceDetail.fogMethod !== 'close' && deviceDetail.power"
+      ></image>
+      <image
+        src="./assets/image/spray_off.png"
+        class="sprayIcon"
+        v-if="deviceDetail.fogMethod !== 'close' && !deviceDetail.power"
+      ></image>
+      <image
+        :src="deviceIcon"
+        class="deviceIcon"
+        :style="{ marginTop: deviceDetail.fogMethod === 'close' ? '173px' : 0 }"
+      ></image>
       <adjust-bar
         :disable="!deviceDetail.power"
         style="margin-top: 104px"
@@ -149,7 +161,7 @@ export default {
         {
           type: 'switch',
           title: 'power',
-          text: '开关',
+          text: '灯光开关',
           iconColor: '#FFAA10',
           disabled: false,
           icon: './assets/image/light_open.png'
@@ -157,10 +169,10 @@ export default {
         {
           type: 'mode',
           title: 'smoke',
-          text: '喷雾',
-          iconColor: '#267AFF',
+          text: '喷雾关闭',
+          iconColor: '#50CEFF',
           disabled: false,
-          icon: './assets/image/smoke_close.png'
+          icon: './assets/image/smoke_close_bg.png'
         }
       ],
       colorTemperatureModelArray: [
@@ -184,7 +196,7 @@ export default {
         {
           id: 0,
           name: '关闭',
-          icon: './assets/image/smoke_close.png'
+          icon: './assets/image/smoke_close_2.png'
         },
         {
           id: 1,
@@ -199,17 +211,22 @@ export default {
       ]
     }
   },
-  created() {
-    this.initPage()
-    Bridge.subscribeMessage({
-      deviceId: [this.deviceDetail.deviceId]
+  async created() {
+    await this.initPage()
+    // 订阅数据，并添加事件
+    debugUtil.log('开始订阅')
+    try {
+      const res = await Bridge.subscribeMessage({
+        deviceId: [this.deviceDetail.deviceId]
+      })
+      debugUtil.log('订阅成功', res)
+    } catch (e) {
+      debugUtil.log('订阅失败', e)
+    }
+    globalEvent.addEventListener('receiveMessage', data => {
+      debugUtil.log('接收到信息：', data)
+      this.updateDeviceDetail()
     })
-      .then(res => {
-        debugUtil.log('订阅成功', res)
-      })
-      .catch(err => {
-        debugUtil.log('订阅失败', err)
-      })
   },
   mounted() {
     globalEvent.addEventListener('receiveMessage', data => {
@@ -253,7 +270,7 @@ export default {
       this.$set(this.tabs, 0, {
         type: 'switch',
         title: 'power',
-        text: '开关',
+        text: '灯光开关',
         iconColor: iconColor,
         disabled: false,
         icon: newIcon
@@ -262,7 +279,7 @@ export default {
     'deviceDetail.fogMethod'(newValue, oldValue) {
       debugUtil.log('watch喷雾', newValue)
       let newIcon = this.smokeArray[0].icon
-      let newText = '关闭'
+      let newText = '喷雾关闭'
       switch (newValue) {
         case 'close':
           break
@@ -435,6 +452,12 @@ export default {
 }
 </script>
 <style scoped>
+:root {
+  --cold-white: #b8d8ff;
+  --warm-white: #ffd27d;
+  --warm-yello: #ffd27d;
+}
+
 .container {
   background-color: #f5f5f5;
   align-items: center;
@@ -464,7 +487,7 @@ export default {
   height: 14px;
   width: 14px;
   border-radius: 7px;
-  background-color: #25CF42;
+  background-color: #25cf42;
   margin-right: 16px;
 }
 
@@ -510,7 +533,7 @@ export default {
 .smokeImg {
   width: 64px;
   height: 64px;
-  background-color: #267aff;
+  background-color: #50ceff;
   border-radius: 32px;
   margin-bottom: 24px;
 }
