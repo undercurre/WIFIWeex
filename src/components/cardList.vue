@@ -55,9 +55,9 @@ export default {
 .container {
   width: 686px;
   height: 222px;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   padding: 40px 32px;
-  box-shadow: 0px 2px 20px 0px rgba(0,0,0,0.04);
+  box-shadow: 0px 2px 20px 0px rgba(0, 0, 0, 0.04);
   border-radius: 32px;
   display: flex;
   flex-direction: column;
@@ -83,7 +83,7 @@ export default {
   flex: 1;
   height: 72px;
   border-radius: 36px;
-  background-color: #F2F2F2;
+  background-color: #f2f2f2;
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -94,12 +94,12 @@ export default {
   margin-left: 32px;
 }
 
-.active{
-  background-color: #FFAA10;
+.active {
+  background-color: #ffaa10;
 }
 
-.unactive{
-  background-color: #F2F2F2;
+.unactive {
+  background-color: #f2f2f2;
 }
 
 .cardText {

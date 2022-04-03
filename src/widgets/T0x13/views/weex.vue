@@ -58,7 +58,7 @@
         style="margin-top: 104px"
         title="亮度"
         :min-percent="1"
-        :percent="Math.round((deviceDetail.brightValue / 255) * 100)"
+        :percent="Math.round((deviceDetail.brightValue / 255) * 100) || 0"
         @getValue="getBrightValue"
       ></adjust-bar>
       <card-list
@@ -208,6 +208,23 @@ export default {
           name: '间断喷雾',
           icon: './assets/image/smoke_interrupted.png'
         }
+      ],
+      smokeArrayDefault: [
+        {
+          id: 0,
+          name: '关闭',
+          icon: './assets/image/smoke_close_2.png'
+        },
+        {
+          id: 1,
+          name: '持续喷雾',
+          icon: './assets/image/smoke_continued.png'
+        },
+        {
+          id: 2,
+          name: '间断喷雾',
+          icon: './assets/image/smoke_interrupted.png'
+        }
       ]
     }
   },
@@ -282,14 +299,17 @@ export default {
       let newText = '喷雾关闭'
       switch (newValue) {
         case 'close':
+          this.smokeArray = this.smokeArrayDefault.filter(item => item.id !== 1)
           break
         case 'along':
           newIcon = this.smokeArray[1].icon
           newText = this.smokeArray[1].name
+          this.smokeArray = this.smokeArrayDefault.filter(item => item.id !== 2)
           break
         case 'blink':
           newIcon = this.smokeArray[2].icon
           newText = this.smokeArray[2].name
+          this.smokeArray = this.smokeArrayDefault.filter(item => item.id !== 3)
           break
       }
       this.$set(this.tabs, 1, {
