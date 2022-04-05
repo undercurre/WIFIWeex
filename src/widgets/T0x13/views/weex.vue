@@ -75,7 +75,7 @@
         title="呼吸模式"
         icon="./assets/image/breath.png"
         desc="开启后，执行明暗交替的呼吸效果"
-        :switch-check="deviceDetail.screenModel !== 'manual'"
+        :switch-check="deviceDetail.screenModel === 'breath'"
         :has-arrow="false"
         @switchChange="setSmokeMode"
       ></super-cell>
@@ -148,7 +148,8 @@ export default {
         pluginData: {
           hideMaintenance: true,
           version: '0.0.1' // 事业部自定义设备插件版本号，统一使用vX.Y.Z格式，X为大版本，Y为中版本，Z为小版本
-        }
+        },
+        routerConfigUrl: weex.config.bundleUrl.split('T0x13_79008252')[0] + 'T0x13_79008252/more.js'
       },
       headerStyle: {
         fontFamily: 'PingFangSC-Regular',
@@ -162,9 +163,9 @@ export default {
           type: 'switch',
           title: 'power',
           text: '灯光开关',
-          iconColor: '#FFAA10',
+          iconColor: '#FFF6E7',
           disabled: false,
-          icon: './assets/image/light_open.png'
+          icon: './assets/image/light_close.png'
         },
         {
           type: 'mode',
@@ -229,6 +230,13 @@ export default {
     }
   },
   async created() {
+    // 进入页面埋点
+    this.trackEvent({
+      event: 'plugin_page_view',
+      apptype_name: '香薰灯',
+      page_name: '灯光控制',
+      refer_name: '美居首页'
+    })
     await this.initPage()
     // 订阅数据，并添加事件
     debugUtil.log('开始订阅')
@@ -299,17 +307,17 @@ export default {
       let newText = '喷雾关闭'
       switch (newValue) {
         case 'close':
-          this.smokeArray = this.smokeArrayDefault.filter(item => item.id !== 1)
+          this.smokeArray = this.smokeArrayDefault.filter(item => item.id !== 0)
           break
         case 'along':
           newIcon = this.smokeArray[1].icon
           newText = this.smokeArray[1].name
-          this.smokeArray = this.smokeArrayDefault.filter(item => item.id !== 2)
+          this.smokeArray = this.smokeArrayDefault.filter(item => item.id !== 1)
           break
         case 'blink':
           newIcon = this.smokeArray[2].icon
           newText = this.smokeArray[2].name
-          this.smokeArray = this.smokeArrayDefault.filter(item => item.id !== 3)
+          this.smokeArray = this.smokeArrayDefault.filter(item => item.id !== 2)
           break
       }
       this.$set(this.tabs, 1, {
@@ -345,6 +353,15 @@ export default {
     tabBarOperateHandler(e) {
       switch (e.index) {
         case 0:
+          this.trackEvent({
+            event: 'plugin_function_click_check',
+            apptype_name: '香薰灯',
+            page_name: '灯光控制',
+            object: '开关灯',
+            ex_value: this.deviceDetail.power ? '开灯' : '关灯', // 前值
+            value: this.deviceDetail.power ? '关灯' : '开灯', // 后值
+            is_legal: '是'
+          })
           this.powerToggle(!this.deviceDetail.power).then(res => {
             if (res.code === '0') {
               nativeService.toast('操作成功')
@@ -354,6 +371,16 @@ export default {
             } else {
               nativeService.toast('操作失败')
             }
+            this.trackEvent({
+              event: 'plugin_function_click_result',
+              apptype_name: '香薰灯',
+              page_name: '灯光控制',
+              object: '开关灯',
+              ex_value: this.deviceDetail.power ? '开灯' : '关灯', // 前值
+              value: this.deviceDetail.power ? '关灯' : '开灯', // 后值
+              result: res.code === '0' ? '成功' : '失败',
+              fail_reason: res.code === '0' ? '' : res.errorCode
+            })
           })
           break
         case 1:
@@ -365,7 +392,8 @@ export default {
       superMoreUtil.open(
         {
           deviceId: this.deviceDetail.deviceId,
-          pluginData: this.superMoreData.pluginData
+          pluginData: this.superMoreData.pluginData,
+          routerConfigUrl: this.superMoreData.routerConfigUrl
         },
         () => {
           debugUtil.log('更多页打开失败！')
@@ -374,6 +402,12 @@ export default {
     },
 
     goToScene() {
+      this.trackEvent({
+        event: 'plugin_button_click',
+        apptype_name: '香薰灯',
+        page_name: '智能场景',
+        element_content: '灯光控制'
+      })
       const params = {
         type: 'jumpWeex',
         param: {
@@ -391,6 +425,15 @@ export default {
       if (e) {
         param = 'breath'
       }
+      this.trackEvent({
+        event: 'plugin_function_click_check',
+        apptype_name: '香薰灯',
+        page_name: '灯光控制',
+        object: '呼吸模式',
+        ex_value: this.deviceDetail.screenModel === 'manual' ? '关闭呼吸模式' : '打开呼吸模式', // 前值
+        value: param === 'manual' ? '关闭呼吸模式' : '打开呼吸模式', // 后值
+        is_legal: '是'
+      })
       this.setScreenModel(param).then(res => {
         if (res.code === '0') {
           if (e) {
@@ -404,11 +447,32 @@ export default {
         } else {
           nativeService.toast('操作失败')
         }
+        this.trackEvent({
+          event: 'plugin_function_click_result',
+          apptype_name: '香薰灯',
+          page_name: '灯光控制',
+          object: '呼吸模式',
+          ex_value: this.deviceDetail.screenModel === 'manual' ? '关闭呼吸模式' : '打开呼吸模式', // 前值
+          value: param === 'manual' ? '关闭呼吸模式' : '打开呼吸模式', // 后值
+          result: res.code === '0' ? '成功' : '失败',
+          fail_reason: res.code === '0' ? '' : res.errorCode
+        })
       })
     },
 
     setColorTemperatureValueModel(e) {
       debugUtil.log('调色', e.value)
+      let modeName = this.colorTemperatureModelArray.find(item => item.value === e.value).name
+      let ex_modeName = this.colorTemperatureModelArray.find(item => item.id === this.colorTemperature).name
+      this.trackEvent({
+        event: 'plugin_function_click_check',
+        apptype_name: '香薰灯',
+        page_name: '灯光控制',
+        object: ex_modeName,
+        ex_value: ex_modeName, // 前值
+        value: modeName, // 后值
+        is_legal: '是'
+      })
       this.setColorTemperatureValue(e.value).then(res => {
         if (res.code === '0') {
           nativeService.toast('调节成功')
@@ -418,6 +482,16 @@ export default {
         } else {
           nativeService.toast('调节失败')
         }
+        this.trackEvent({
+          event: 'plugin_function_click_result',
+          apptype_name: '香薰灯',
+          page_name: '灯光控制',
+          object: ex_modeName,
+          ex_value: ex_modeName, // 前值
+          value: modeName, // 后值
+          result: res.code === '0' ? '成功' : '失败',
+          fail_reason: res.code === '0' ? '' : res.errorCode
+        })
       })
     },
 
@@ -426,17 +500,41 @@ export default {
     },
 
     smokeControler(item) {
+      let exModelName = ''
+      switch (this.deviceDetail.fogMethod) {
+        case 'close':
+          exModelName = '关闭喷雾'
+          break
+        case 'along':
+          exModelName = '持续喷雾'
+          break
+        case 'blink':
+          exModelName = '间接喷雾'
+          break
+      }
       let model = 'close'
+      let modelName = '关闭喷雾'
       switch (item.id) {
         case 0:
           break
         case 1:
           model = 'along'
+          modelName = '持续喷雾'
           break
         case 2:
           model = 'blink'
+          modelName = '间接喷雾'
           break
       }
+      this.trackEvent({
+        event: 'plugin_function_click_check',
+        apptype_name: '香薰灯',
+        page_name: '灯光控制',
+        object: modelName,
+        ex_value: exModelName, // 前值
+        value: modelName, // 后值
+        is_legal: '是'
+      })
       this.controlFogMethod(model).then(res => {
         if (res.code === '0') {
           nativeService.toast('操作成功')
@@ -447,12 +545,32 @@ export default {
         } else {
           nativeService.toast('操作失败')
         }
+        this.trackEvent({
+          event: 'plugin_function_click_result',
+          apptype_name: '香薰灯',
+          page_name: '灯光控制',
+          object: modelName,
+          ex_value: exModelName, // 前值
+          value: modelName, // 后值
+          result: res.code === '0' ? '成功' : '失败',
+          fail_reason: res.code === '0' ? '' : res.errorCode
+        })
       })
     },
 
     getBrightValue(e) {
       debugUtil.log('拿到百分比', e)
       debugUtil.log('折算', parseInt((255 * e) / 100))
+      let ex_value = Math.round((deviceDetail.brightValue / 255) * 100) || 0
+      this.trackEvent({
+        event: 'plugin_function_click_check',
+        apptype_name: '香薰灯',
+        page_name: '灯光控制',
+        object: '亮度调节',
+        ex_value: ex_value, // 前值
+        value: parseInt((255 * e) / 100), // 后值
+        is_legal: '是'
+      })
       this.setBrightValue(parseInt((255 * e) / 100)).then(res => {
         if (res.code === '0') {
           nativeService.toast('调节成功')
@@ -462,6 +580,16 @@ export default {
         } else {
           nativeService.toast('调节失败')
         }
+        this.trackEvent({
+          event: 'plugin_function_click_result',
+          apptype_name: '香薰灯',
+          page_name: '灯光控制',
+          object: '亮度调节',
+          ex_value: ex_value, // 前值
+          value: parseInt((255 * e) / 100), // 后值
+          result: res.code === '0' ? '成功' : '失败',
+          fail_reason: res.code === '0' ? '' : res.errorCode
+        })
       })
     },
 
