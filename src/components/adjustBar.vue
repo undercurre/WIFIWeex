@@ -53,6 +53,13 @@ export default {
       barColor: '#FFAA10'
     }
   },
+  created() {
+    if (!this.disable) {
+      this.barColor = '#FFAA10'
+    } else {
+      this.barColor = '#C1C1C1'
+    }
+  },
   watch: {
     disable(val) {
       if (!val) {

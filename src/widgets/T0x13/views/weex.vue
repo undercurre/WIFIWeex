@@ -54,7 +54,7 @@
         :style="{ marginTop: deviceDetail.fogMethod === 'close' ? '173px' : 0 }"
       ></image>
       <adjust-bar
-        :disable="!deviceDetail.power"
+        :disable="functionDisabled"
         style="margin-top: 104px"
         title="亮度"
         :min-percent="1"
@@ -62,7 +62,7 @@
         @getValue="getBrightValue"
       ></adjust-bar>
       <card-list
-        :disable="!deviceDetail.power"
+        :disable="functionDisabled"
         style="margin-top: 16px"
         title="色温"
         :selected="colorTemperature"
@@ -70,7 +70,7 @@
         @selectCard="setColorTemperatureValueModel"
       ></card-list>
       <super-cell
-        :disable="!deviceDetail.power"
+        :disable="functionDisabled"
         style="margin-top: 16px"
         title="呼吸模式"
         icon="./assets/image/breath.png"
@@ -107,10 +107,56 @@
         </div>
       </dof-popup>
     </scroller>
+    <dof-mask
+      height="750"
+      width="540"
+      duration="300"
+      mask-bg-color="#FFFFFF"
+      :has-overlay="true"
+      :show-close="false"
+      :show="showMask && deviceInfo.isOnline === '0'"
+      border-radius="26"
+    >
+      <div style="align-items: center">
+        <image src="./assets/image/outLineMask.png" class="bgInMask"></image>
+        <text class="titleInMask">设备离线，请检查连接状态</text>
+        <div>
+          <text class="tip">1、设备是否正常供电</text>
+          <text class="tip">2、网络信号是否稳定</text>
+          <text class="tip">3、WiFi名称、密码是否修改，如有修改请重新添加设备</text>
+        </div>
+        <dof-button
+          type="gray"
+          text="我知道了"
+          :btn-style="{
+            width: '540px',
+            height: '104px',
+            backgroundColor: '#E5E5E8',
+            borderRadius: 0,
+            marginTop: '44px'
+          }"
+          :text-style="{
+            color: '#267AFF',
+            fontSize: '32px'
+          }"
+          @dofButtonClicked="showMask = false"
+        >
+        </dof-button>
+      </div>
+    </dof-mask>
   </div>
 </template>
 <script>
-import { DofMinibar, DofButton, DofCell, DofSwitch, DofBottomBar, DofPopup, DofNoticebar } from 'dolphin-weex-ui'
+import {
+  DofMinibar,
+  DofButton,
+  DofCell,
+  DofSwitch,
+  DofBottomBar,
+  DofPopup,
+  DofNoticebar,
+  DofMask
+} from 'dolphin-weex-ui'
 import base from '../../../mixins/base'
 import AdjustBar from '../../../components/adjustBar'
 import CardList from '../../../components/cardList'
@@ -134,10 +180,12 @@ export default {
     DofSwitch,
     DofBottomBar,
     DofPopup,
-    DofNoticebar
+    DofNoticebar,
+    DofMask
   },
   data() {
     return {
+      showMask: true,
       showPopup: false,
       isSpray: true,
       statusText: '喷雾中',
@@ -284,9 +332,21 @@ export default {
       }
       return this.colorTemperatureModelArray.find(item => item.value === modelValue).id
     },
+    functionDisabled() {
+      return this.deviceInfo.isOnline === '0' || !this.deviceDetail.power
+    },
     ...mapState(['deviceInfo', 'deviceDetail'])
   },
   watch: {
+    'deviceInfo.isOnline'(newValue, oldValue) {
+      if (newValue === '0') {
+        this.tabs[0].disabled = true
+        this.tabs[1].disabled = true
+      } else {
+        this.tabs[0].disabled = false
+        this.tabs[1].disabled = false
+      }
+    },
     'deviceDetail.power'(newValue, oldValue) {
       debugUtil.log('watch开关', newValue)
       let newIcon = newValue ? './assets/image/light_open.png' : './assets/image/light_close.png'
@@ -691,5 +751,27 @@ export default {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+.bgInMask {
+  width: 540px;
+  height: 750px;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.titleInMask {
+  margin-top: 338px;
+  margin-bottom: 36px;
+  font-size: 34px;
+  font-weight: 700;
+}
+
+.tip {
+  font-size: 26px;
+  color: #666666;
+  line-height: 48px;
+  margin: 0 48px;
 }
 </style>
